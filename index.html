@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ОбР — най-важното</title>
+<style>
+:root{
+  --bg:#f6f8fc; --surface:#ffffff; --on:#1f1f1f; --muted:#5f6368;
+  --line:#e3e6eb; --blue:#1a73e8; --blue-s:#e8f0fe;
+  --green:#1e8e3e; --green-s:#e6f4ea; --red:#d93025; --red-s:#fce8e6;
+  --yellow:#f9ab00; --yellow-s:#fef7e0; --purple:#9334e6; --purple-s:#f3e8fd;
+  --teal:#00897b; --teal-s:#e0f2f1; --pink:#d01884; --pink-s:#fce4ec;
+  --indigo:#3f51b5; --indigo-s:#e8eaf6; --orange:#e8710a; --orange-s:#feefe3;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--on);font-family:"Google Sans",Roboto,-apple-system,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.55}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.hdr{max-width:1280px;margin:0 auto;padding:16px 20px 0}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:22px;margin:0;font-weight:500;letter-spacing:-.2px}
+.brand .date{color:var(--muted);font-size:13px}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:12px;padding-bottom:0}
+nav button{background:none;border:none;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-size:13.5px;color:var(--muted);cursor:pointer;white-space:nowrap;border-radius:8px 8px 0 0}
+nav button:hover{background:var(--bg)}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+main{max-width:1280px;margin:0 auto;padding:22px 20px 80px}
+.view{display:none}
+.view.active{display:block}
+h2.sec{font-size:17px;font-weight:500;margin:26px 0 12px;display:flex;align-items:center;gap:8px}
+h2.sec:first-child{margin-top:4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .v{font-size:26px;font-weight:500;letter-spacing:-.5px}
+.kpi .l{color:var(--muted);font-size:12.5px;margin-top:2px}
+.kpi .d{font-size:12px;margin-top:4px}
+.up{color:var(--green)}.down{color:var(--red)}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;font-weight:500;white-space:nowrap;line-height:1.7}
+.item{padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:none}
+.item .t{font-weight:500}
+.item .s{color:var(--muted);font-size:13px;margin-top:2px}
+.item .m{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.decision{background:var(--red-s);color:var(--red);border:1px solid #f6c8c4}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.toolbar input,.toolbar select{font:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--on);outline:none}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-s)}
+.toolbar .count{color:var(--muted);font-size:12.5px;margin-left:auto}
+.tblwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.4px;padding:12px 14px;border-bottom:1px solid var(--line);background:#fafbfd;position:sticky;top:0}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fbfcfe}
+ul.mini{margin:0;padding-left:16px}
+ul.mini li{margin:1px 0}
+.tip{border-bottom:1px dashed var(--muted);cursor:help;position:relative}
+.tip .bubble{display:none;position:absolute;left:0;top:calc(100% + 6px);width:260px;background:#202124;color:#fff;padding:9px 11px;border-radius:10px;font-size:12px;font-weight:400;line-height:1.5;z-index:40;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.tip:hover .bubble{display:block}
+.cm{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:5px 10px;border-radius:999px;background:var(--blue-s);color:var(--blue);font-weight:500;white-space:nowrap}
+.cm:hover{text-decoration:none;background:#d7e6fd}
+.srcs{display:flex;gap:5px;flex-wrap:wrap}
+.note{background:var(--yellow-s);border:1px solid #fde293;border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+.ok{background:var(--green-s);border:1px solid #b7e1c2;border-radius:12px;padding:10px 14px;font-size:13px}
+.bad{background:var(--red-s);border:1px solid #f6c8c4;border-radius:12px;padding:10px 14px;font-size:13px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.empty{color:var(--muted);font-style:italic;padding:18px;text-align:center}
+.lead{color:var(--muted);font-size:13.5px;margin:-4px 0 14px}
+@media(max-width:600px){.brand h1{font-size:19px}main{padding:16px 14px 60px}.hdr{padding:14px 14px 0}}
+</style>
+</head>
+<body>
+<header>
+ <div class="hdr">
+  <div class="brand"><h1>ОбР — най-важното</h1><span class="date">доклад към 3 октомври 2026 г. · обхват: последните 32 дни</span></div>
+  <nav id="nav"></nav>
+ </div>
+</header>
+<main id="main"></main>
+
+<script>
+/* ============ ДАННИ ============ */
+const TODAY = "3 октомври 2026 г.";
+const MAIL = "d.cholakov@obr.education";
+
+const SRC = {
+  "Работни срещи": "https://docs.google.com/document/d/1PkQm5Q0-oh11oGLcFk7c2PpcmrAqlRS7WmgTHmyt7hc/edit",
+  "Slack #general": "https://obr-corp.slack.com/archives/C04BQTZN2Q5",
+  "Slack #khanmigo": "https://obr-corp.slack.com/archives/C09PPE06GGG",
+  "Табло училища": "https://datastudio.google.com/u/0/reporting/353a81fd-bbef-4ebd-88f8-e5e9b83e7533/page/p_an11ffb0xd",
+  "Табло България": "https://datastudio.google.com/u/0/reporting/be479e0d-496b-4663-a950-525c092a9b8d/page/x19Q",
+  "Уеб": "",
+  "Miro": "https://miro.com/app/board/uXjVIvmf7Zc=/",
+  "Monday": ""
+};
+
+/* Постоянни цветове на таговете */
+const PALETTE = ["blue","green","purple","orange","teal","pink","indigo","yellow","red"];
+const TAGCOLOR = {};
+function tagColor(t){
+  if(!TAGCOLOR[t]){
+    const used = Object.keys(TAGCOLOR).length;
+    TAGCOLOR[t] = PALETTE[used % PALETTE.length];
+  }
+  return TAGCOLOR[t];
+}
+/* фиксиране на основните, за да са стабилни */
+["Училища","Съдържание","Екип","Финанси","Операции","Кан Академия","ИИ","Дарители","ПР","Данни"].forEach(tagColor);
+
+function tagHTML(t){
+  const c = tagColor(t);
+  return `<span class="tag" style="background:var(--${c}-s);color:var(--${c})">${t}</span>`;
+}
+
+/* ---- Вътрешни развития ---- */
+const INTERNAL = [
+  {tema:"Венелин поема като директор", url:SRC["Работни срещи"],
+   tip:"Венелин подписа договор, одобрява отчети и води публичната позиция; Даниел се оттегля към УС.",
+   owner:"Венелин", cat:"Екип",
+   concl:["Договорът е подписан","Одобрява всички отчети","Представен пред УниКредит"],
+   next:["Венелин — одобрява Cargill и ФАБ","Венелин — води позицията по ПИЗА"],
+   srcs:["Работни срещи","Slack #general"], date:"08.09 / 21.09", decision:false},
+
+  {tema:"15 училища по УниКредит", url:SRC["Работни срещи"],
+   tip:"13 от нужните 15 нови училища са осигурени; търсят се още минимум две до края на срока.",
+   owner:"Галя", cat:"Училища",
+   concl:["29 училища общо","„Д. Дебелянов“ е 14-ото","Базовите пакети се провалиха"],
+   next:["Даниел — подписва договора с „Д. Дебелянов“","Цветомира — координатор от 05.10"],
+   srcs:["Работни срещи"], date:"08.09 / 28.09", decision:true},
+
+  {tema:"Външна оценка на въздействието", url:SRC["Работни срещи"],
+   tip:"Оценката по ФАБ е готова, но резултатът не е статистически значим и не може да се твърди пред донори.",
+   owner:"Галя", cat:"Училища",
+   concl:["ФАБ оценката е финализирана","Резултатът не е значим","ФМ има график с училищата"],
+   next:["Мариета — реални имена на ученици","Мария — помага с таблицата за ФМ"],
+   srcs:["Работни срещи"], date:"21.09", decision:true},
+
+  {tema:"Експерти по биология — без кандидати", url:SRC["Работни срещи"],
+   tip:"Обявата за експерти прогимназия по биология почти не привлича кандидати; срокът е удължен.",
+   owner:"Мери", cat:"Съдържание",
+   concl:["Нула кандидатури към 21.09","Една кандидатура към 28.09","Срокът удължен до 10.10"],
+   next:["Мишо — сменя срока на обявата","Венелин — публикува в LinkedIn"],
+   srcs:["Работни срещи"], date:"21.09 / 28.09", decision:false},
+
+  {tema:"Отчети и due diligence по донори", url:SRC["Работни срещи"],
+   tip:"Всички отчети са изпратени; GlobalGiving стартира due diligence с промяна на идентификационния номер.",
+   owner:"Мишо", cat:"Финанси",
+   concl:["Всички отчети изпратени","Due diligence тече","Швейцарският проект е подаден"],
+   next:["Мишо — отговаря на УниКредит","Мишо — отчет GlobalGiving на 06.10"],
+   srcs:["Работни срещи"], date:"21.09 / 28.09", decision:false},
+
+  {tema:"Кампания „1% промяна“ стартира", url:SRC["Slack #general"],
+   tip:"Кампанията за безплатен курс по биология 5.–7. клас е пусната на 1 октомври; първите дарения дойдоха веднага.",
+   owner:"Маги", cat:"Финанси",
+   concl:["418 евро в първия ден","Публикации във FB/IG/LinkedIn","Визуализациите се чупеха"],
+   next:["Маги — в комуникационния календар","Мишо — следи визуализацията"],
+   srcs:["Slack #general","Работни срещи"], date:"01.10", decision:false},
+
+  {tema:"ПИЗА 2025 — рекорден спад", url:"https://www.capital.bg/politika_i_ikonomika/obrazovanie/2026/09/08/4953487_pisa_2025_bulgariia_izostava_oshte_poveche_po/",
+   tip:"България пада с 12 точки и от 49-о на 59-о място; 57% функционална неграмотност по математика.",
+   owner:"Галя", cat:"Операции",
+   concl:["58 точки под ОИСР","14 точки зад Румъния","Силен мотив за Кан"],
+   next:["Венелин — решава комуникацията","Мишо — проверява връзка Кан–ПИЗА"],
+   srcs:["Работни срещи","Slack #general","Уеб"], date:"08.09", decision:true},
+
+  {tema:"Публични атаки срещу ОбР", url:SRC["Slack #general"],
+   tip:"Статия и социални публикации срещу организацията и Венелин; решено е засега да не се реагира.",
+   owner:"Мели", cat:"ПР",
+   concl:["Няма законови нарушения","Решено: без реакция","Повече хора научават за ОбР"],
+   next:["Мели — следи ситуацията","Венелин — единна позиция при нужда"],
+   srcs:["Slack #general","Работни срещи"], date:"19.09 – 20.09", decision:true},
+
+  {tema:"Диди напуска екипа", url:SRC["Slack #general"],
+   tip:"Диана Тотинска приключва работа в ОбР в края на септември; изпратена е от екипа.",
+   owner:"Диди", cat:"Екип",
+   concl:["Последна седмица след 21.09","Изпратена на 30.09","Предаване на оперативките"],
+   next:["Михаела/Йо — водят оперативките","Йо — закриване на достъпите"],
+   srcs:["Slack #general","Работни срещи"], date:"25.09 – 30.09", decision:false},
+
+  {tema:"ИИ в ежедневната работа", url:SRC["Slack #general"],
+   tip:"Екипът ползва ИИ за анализи, умения за грешки в субтитри, визуализации и демо приложения.",
+   owner:"Даниел", cat:"ИИ",
+   concl:["Мишо ползва Claude за анализи","Умение за грешки с ММ:СС","Демо за учене на шах"],
+   next:["Даниел — подобрява умението за грешки","Даниел — автоматизация на базата училища"],
+   srcs:["Работни срещи","Slack #general"], date:"20.09 / 28.09", decision:false}
+];
+
+/* ---- Новини ---- */
+const NEWS = [
+  {t:"„Образование без раници“ подготвя разширяване на Кан Академия в България",
+   url:"https://www.capital.bg/politika_i_ikonomika/obrazovanie/2026/06/20/4925790_obrazovanie_bez_ranici_podgotvia_razshiriavane_na_kan/",
+   src:"Капитал", date:"20.06.2026", tags:["Споменаване на ОбР","Кан Академия"],
+   why:"Пилот в 28 училища и план за още поне 35 за две години. Извън 32-дневния прозорец — включено само като контекст за публичните споменавания."},
+  {t:"ПИЗА 2025: България изостава още повече по математика и четене",
+   url:"https://www.capital.bg/politika_i_ikonomika/obrazovanie/2026/09/08/4953487_pisa_2025_bulgariia_izostava_oshte_poveche_po/",
+   src:"Капитал", date:"08.09.2026", tags:["Данни","Застъпничество"],
+   why:"57-о място по математика с 387 точки; 57% под функционалния минимум. Най-силният външен аргумент за програмата."},
+  {t:"България последна в ЕС по трите показателя на ПИЗА 2025",
+   url:"https://ruse.news/index.php/2026/09/08/pisa-2025-balgariya-posledna-v-es-po-trite-pokazatelya",
+   src:"Ruse.news", date:"08.09.2026", tags:["Данни"],
+   why:"Само 3% от учениците са на най-високите нива по математика при 8% средно за ОИСР."},
+  {t:"МОН разработи визия за въвеждане на изкуствен интелект в училище",
+   url:"https://economy.bg/innovations/view/63140/MON-s-",
+   src:"Economy.bg", date:"септември 2026", tags:["ИИ","Дигитализация","Политики"],
+   why:"От 2026/27 ИИ влиза в VIII клас по информатика; водеща роля на учителя. Пряка възможност за позициониране на ОбР."},
+  {t:"Новата учебна година: по-малко телефони, повече ИИ и недостиг на учители",
+   url:"https://m.novinite.bg/articles/290101/novata-uchebna-godina-po-malko-telefoni-poveche-ai-i-nedostig-na-uchiteli",
+   src:"Novinite", date:"15.09.2026", tags:["Дигитализация","Политики"],
+   why:"Над 250 млн. инвестиция в технологични класни стаи; всяко училище вече има STEM център."},
+  {t:"„Заедно в час“ с конкурс за проекти по програма „Учим заедно“ (с Фондация „Америка за България“)",
+   url:"https://www.bta.bg/bg/news/bulgaria/oficial-messages/848506-fondatsiya-zaedno-v-chas-konkurs-za-proekti-za-razvitie-na-grazhdansko-obrazo",
+   src:"БТА", date:"септември 2026", tags:["Финансиране","Други организации"],
+   why:"Финансиране до 30 000 лв. за НПО. Възможност и ориентир за позиционирането на ОбР."}
+];
+
+/* ---- Споменавания на председателя на УС ---- */
+const MENTIONS = [
+  {where:"Работни срещи — Екип, 08.09", url:SRC["Работни срещи"],
+   txt:"„Даниел — председател на УС, отдръпва се от оперативните теми. Фокус по стратегически теми и цели в числово изражение.“", src:"Работни срещи"},
+  {where:"Работни срещи — Работа с училища, 08.09", url:SRC["Работни срещи"],
+   txt:"„ДЧ: Статистики за търсенето на УК — числа.“", src:"Работни срещи"},
+  {where:"Работни срещи — Външна оценка, 08.09", url:SRC["Работни срещи"],
+   txt:"„ДЧ: Фокус върху уменията, моля.“", src:"Работни срещи"},
+  {where:"Работни срещи — Работа с училища, 21.09", url:SRC["Работни срещи"],
+   txt:"„Нов координатор за РУУ — избран — остава само стъпката среща с Даниел.“", src:"Работни срещи"},
+  {where:"Работни срещи — ПР, 21.09", url:SRC["Работни срещи"],
+   txt:"„Очаква одобрение на Венелин — статия за ИИ, която е подготвил Даниел.“", src:"Работни срещи"},
+  {where:"Работни срещи — Работа с училища, 28.09", url:SRC["Работни срещи"],
+   txt:"„СУ „Димчо Дебелянов“ — подписаха, чакаме подпис от Даниел.“", src:"Работни срещи"},
+  {where:"Работни срещи — Локализация, 28.09", url:SRC["Работни срещи"],
+   txt:"„Дани — може ли да подобря умението за грешките? Например да му искаме ММ:СС на грешката… Може.“", src:"Работни срещи"},
+  {where:"Работни срещи — Мониторинг, 28.09", url:SRC["Работни срещи"],
+   txt:"„Даниел може да помага с автоматизация и други“ — за базата данни с таргетирани училища.", src:"Работни срещи"},
+  {where:"Slack #general, 16.09", url:"https://obr-corp.slack.com/archives/C04BQTZN2Q5/p1789549965080459",
+   txt:"Галина: „ИИ е добър приятел на Даниел, съответно има добро мнение за нас.“", src:"Slack #general"},
+  {where:"Slack #general, 20.09", url:SRC["Slack #general"],
+   txt:"Даниел споделя демо за учене на шах, направено с Клод за 15 минути; иска идеи за подобрения.", src:"Slack #general"}
+];
+
+/* ---- Данни ---- */
+const D_SCHOOLS_MONTHLY = [
+  {m:"Сеп 25",pod:1,usv:1,p30:1,u30:1},{m:"Окт 25",pod:6,usv:4,p30:3,u30:2},
+  {m:"Ное 25",pod:13,usv:10,p30:15,u30:9},{m:"Дек 25",pod:19,usv:14,p30:22,u30:15},
+  {m:"Яну 26",pod:25,usv:19,p30:31,u30:22},{m:"Фев 26",pod:33,usv:24,p30:38,u30:29},
+  {m:"Мар 26",pod:37,usv:28,p30:41,u30:32},{m:"Апр 26",pod:43,usv:33,p30:44,u30:35},
+  {m:"Май 26",pod:50,usv:38,p30:48,u30:40},{m:"Юни 26",pod:60,usv:47,p30:53,u30:45}
+];
+const D_BG_MALS = [
+  {m:"Сеп 24",v:28043},{m:"Окт 24",v:50757},{m:"Ное 24",v:53449},{m:"Дек 24",v:38298},
+  {m:"Яну 25",v:50235},{m:"Фев 25",v:37441},{m:"Мар 25",v:37561},{m:"Апр 25",v:30411},
+  {m:"Май 25",v:29469},{m:"Юни 25",v:21595},{m:"Юли 25",v:11644},{m:"Авг 25",v:11056},
+  {m:"Сеп 25",v:21608},{m:"Окт 25",v:35130},{m:"Ное 25",v:34985},{m:"Дек 25",v:25085},
+  {m:"Яну 26",v:28593},{m:"Фев 26",v:23512},{m:"Мар 26",v:23717},{m:"Апр 26",v:18653},
+  {m:"Май 26",v:15654},{m:"Юни 26",v:14153},{m:"Юли 26",v:7238},{m:"Авг 26",v:7280},
+  {m:"Сеп 26",v:11418}
+];
+
+/* ---- Общ изглед ---- */
+const OVERVIEW = [
+ {cat:"Програмни дейности — Училища", view:"internal", items:[
+   {t:"13 от 15 нови училища по УниКредит са осигурени",
+    s:"29 училища общо; „Д. Дебелянов“ е 14-ото и чака подпис от Даниел. Базовите пакети отпаднаха.",
+    tags:["Училища","Дарители"], decision:true},
+   {t:"Външната оценка по ФАБ не е статистически значима",
+    s:"Готова е, но резултатът не може да се твърди пред донори. Срок 30.09 за реалните имена на ученици.",
+    tags:["Училища","Данни"], decision:true}
+ ]},
+ {cat:"Програмни дейности — Съдържание", view:"internal", items:[
+   {t:"Няма кандидати за експерти по биология",
+    s:"Една кандидатура към 28.09; срокът е удължен до 10 октомври. Заплашва графика по съдържанието.",
+    tags:["Съдържание","Екип"], decision:false},
+   {t:"Безплатен курс по биология 5.–7. клас е каузата в „1% промяна“",
+    s:"Кампанията стартира на 1 октомври и събра 418 евро в първия ден.",
+    tags:["Съдържание","Финанси"], decision:false}
+ ]},
+ {cat:"Развитие на екипа", view:"internal", items:[
+   {t:"Венелин поема като изпълнителен директор",
+    s:"Договорът е подписан; одобрява отчетите и води публичната позиция. Даниел се фокусира върху УС и стратегията.",
+    tags:["Екип"], decision:false},
+   {t:"Диди напуска, Цветомира и Василия се включват",
+    s:"Диана Тотинска приключи на 30.09; Цветомира започва като координатор на 05.10.",
+    tags:["Екип"], decision:false}
+ ]},
+ {cat:"Финанси и бюджет", view:"ус", items:[
+   {t:"Всички отчети са изпратени; GlobalGiving е в due diligence",
+    s:"Следващ отчет на 6 октомври. Въпроси от УниКредит предстоят. Швейцарската схема е подадена.",
+    tags:["Финанси","Дарители"], decision:false},
+   {t:"Нова посока: фондонабиране от регионалния бизнес",
+    s:"Идея на Венелин; Мишо подготвя предложение за одобрение. Изисква решение за приоритет и ресурс.",
+    tags:["Финанси"], decision:true}
+ ]},
+ {cat:"Други оперативни дейности", view:"news", items:[
+   {t:"ПИЗА 2025: рекорден спад — най-силният ни външен аргумент",
+    s:"57-о място по математика, 57% функционално неграмотни. Комуникационната позиция чака решение.",
+    tags:["Операции","Данни"], decision:true},
+   {t:"Публични атаки срещу ОбР и Венелин — решено е без реакция",
+    s:"Статия и социални публикации през 19.–20.09. Решението да не се реагира подлежи на преглед.",
+    tags:["ПР"], decision:true}
+ ]}
+];
+
+/* ---- Отчет за УС ---- */
+const BOARD = [
+ {n:"1. Основни постижения", items:[
+  "29 училища в програмата „По-добри по математика с Кан Академия“ (15 стари + 13 нови + Мездра); 14-ото ново училище — СУ „Димчо Дебелянов“ — чака подпис.",
+  "Учебна 2025/26 приключи с 4 912 ученици в 28 училища; 53% от учениците са повишили 30+ умения, 45% са усвоили 30+ умения.",
+  "Външната оценка на въздействието по ФАБ е финализирана.",
+  "Каузата „Знание, достъпно за всички“ е в платформата „1% промяна“ от 1 октомври."
+ ]},
+ {n:"2. KPI и напредък по проекти", items:[
+  "Училища в отчета (юни 2026): 24; ученици: 2 608; средно 23 мин./ученик/месец.",
+  "Натрупани от началото на годината: 60 подобрени и 47 усвоени умения средно на ученик.",
+  "Ефективност: 4 минути на започнато, 5 на подобрено, 7 на усвоено умение.",
+  "Кан Академия в България, септември 2026: 11 418 месечно активни учащи (−47,2% спрямо година по-рано) и 290 246 минути учене (−25,8%).",
+  "Локализация: ревизиите по математика до 12. клас изискват поне още 2 месеца; обявата за експерти по биология е без кандидати."
+ ]},
+ {n:"3. Финансиране и устойчивост", items:[
+  "Всички отчети към донори са изпратени, включително Cargill; очакват се отговори на допълнителни въпроси от УниКредит.",
+  "GlobalGiving: стартирано due diligence с промяна на идентификационния номер; отчет на 6 октомври; подготвя се донорски бюлетин.",
+  "Швейцарско-българска схема „Заедно за каузи“ — подадено.",
+  "Нова посока: фондонабиране от регионалния бизнес (предложение на Венелин, анализ от Мишо).",
+  "Кампания „1% промяна“ — 418 евро в първия ден; седмица на ОбР в студиото на Дарик на 8 декември.",
+  "Съфинансирането е платено от всички училища без 1–2."
+ ]},
+ {n:"4. Рискове и предизвикателства", items:[
+  "Външната оценка по ФАБ не е статистически значима — не може да се твърди въздействие пред донори.",
+  "Остават 2 училища до целта от 15 нови; базовите пакети отпаднаха като план за растеж.",
+  "Нула/единични кандидатури за експерти по биология — риск за графика по съдържанието.",
+  "Спад в националното ползване на Кан Академия: −47% месечно активни учащи спрямо година по-рано.",
+  "Кан централа: много подадени сигнали, редки отговори; неясноти около новата визия и достъпа до Канмиго за ученици.",
+  "Публични атаки срещу организацията и изпълнителния директор; засега без реакция.",
+  "Декларация за родителско съгласие за видео/снимка на ученик — риск по лични данни."
+ ]},
+ {n:"5. Екип", items:[
+  "Венелин Петков — с подписан договор като изпълнителен директор.",
+  "Даниел Чолаков — председател на УС, оттегля се от оперативните теми; Жана — зам.-председател.",
+  "Нови: Василия Свилева (веднага води обучение в Приморско); Цветомира — координатор от 5 октомври.",
+  "Напуска: Диана Тотинска (последен ден 30 септември).",
+  "Вакантни: експерти прогимназия по биология — обявата е удължена до 10 октомври.",
+  "Администрация: заплати до 10-о число; ваучери за храна в същия ден; профилактични прегледи задвижени."
+ ]},
+ {n:"6. Неотложни решения и одобрения", items:[
+  "Комуникационна позиция по резултатите от ПИЗА 2025 — чака решение на изпълнителния директор.",
+  "Договор със СУ „Димчо Дебелянов“ — чака подпис от председателя на УС.",
+  "Как се комуникира външната оценка при липса на статистическа значимост.",
+  "Одобрение на новата посока във фондонабирането към регионалния бизнес.",
+  "Преглед на решението да не се реагира на публичните атаки.",
+  "Кампания „1% промяна“ — отворен въпрос за обсъждане с Мери."
+ ]},
+ {n:"7. Приоритети за следващия период", items:[
+  "Затваряне на последните 2 от 15 нови училища по УниКредит.",
+  "Назначаване на експерти по биология до средата на октомври.",
+  "Отчет към GlobalGiving на 6 октомври и приключване на due diligence.",
+  "Старт на новия координатор Цветомира и въвеждане на Василия.",
+  "Публикуване на статията за ИИ след одобрение.",
+  "Възстановяване на националното ползване на Кан Академия през есенния сезон."
+ ]},
+ {n:"8. Теми за по-дълъг хоризонт", items:[
+  "Стратегическа позиция на ОбР спрямо визията на МОН за ИИ в училище (ИИ влиза в VIII клас от 2026/27).",
+  "Какво „продаваме“ на партньорите около KhanX и какво означава скептицизмът към Канмиго за нас.",
+  "Методология за оценка на въздействието, която дава значими резултати.",
+  "Диверсификация на приходите: регионален бизнес, индивидуални дарители, държавни програми.",
+  "Автоматизация и ИИ във вътрешните процеси — мониторинг, локализация, отчетност."
+ ]}
+];
+
+/* ---- Отчет за членове ---- */
+const MEMBERS = [
+ {h:"За каузата", items:[
+   "29 училища вече работят с Кан Академия по програмата.",
+   "53% от учениците повишиха 30+ умения през годината.",
+   "Външната оценка на въздействието по ФАБ е готова.",
+   "ПИЗА 2025: България последна в ЕС по трите показателя.",
+   "МОН прие визия за изкуствен интелект в училище."
+ ]},
+ {h:"Фондонабиране", items:[
+   "Каузата ни в „1% промяна“ събра 418 евро в първия ден.",
+   "Швейцарската схема „Заедно за каузи“ — кандидатствахме.",
+   "GlobalGiving започна due diligence; отчет на 6 октомври.",
+   "Всички отчети към донори са изпратени, включително Cargill."
+ ]},
+ {h:"Развитие на хора", items:[
+   "Венелин Петков пое като изпълнителен директор.",
+   "Цветомира започва като координатор на 5 октомври.",
+   "Василия Свилева вече води обучение в Приморско.",
+   "Диана Тотинска напусна екипа на 30 септември.",
+   "Търсим експерти по биология — срок 10 октомври."
+ ]},
+ {h:"Оперативно", items:[
+   "Екипът ползва ИИ за анализи, отчети и визуализации.",
+   "Ново умение открива грешки в субтитрите с точно време.",
+   "Статия за ИИ от Даниел чака одобрение за публикуване.",
+   "Седмица на ОбР в студиото на Дарик — 8 декември."
+ ]}
+];
+
+/* ---- Технически ---- */
+const TECH_SOURCES = [
+ {src:"Google Drive — „Работни срещи - последни“", status:"ok",
+  note:"Връзката работи. Документът е 275 000 знака и превишава лимита за едно четене — прочетен чрез подагент на части. Допускане: от септември 2025 г. заглавията са във формат „ДД.ММ.ГГГГ г. | Оперативка в офиса“, а не „Работна среща ГГГГ-ММ-ДД“; търсенето беше разширено, иначе целият период щеше да се пропусне. Обхванати срещи: 08.09, 14.09 (празна), 21.09, 28.09."},
+ {src:"Slack — #general", status:"ok",
+  note:"Прочетени последните 60 съобщения (09.09 – 02.10). Без затруднения."},
+ {src:"Slack — #khanmigo", status:"warn",
+  note:"Връзката работи, но последното съобщение в канала е от 17 август 2026 г. — извън 32-дневния прозорец. Няма принос към доклада."},
+ {src:"Slack — търсене на споменавания", status:"ok",
+  note:"Търсене по „Даниел“ след 01.09.2026 върна 1 резултат в публични канали. Търсенето покрива само публични канали."},
+ {src:"Miro — борд uXjVIvmf7Zc=", status:"fail",
+  note:"„Board access denied“ при canvas_search, board_show и canvas_read_as_svg. Връзката е активна (user_who_am_i работи), но акаунтът вижда само 1 борд — „Digital education Theory of Change 202601 template“. Бордът от заданието не е в списъка. Нужно е споделяне с акаунта, с който е направена връзката."},
+ {src:"Monday", status:"fail",
+  note:"Няма конфигуриран Monday конектор в тази сесия. Търсенето в регистъра на инструментите не върна Monday инструменти. Разделът остава непокрит."},
+ {src:"Looker Studio — табло училища", status:"ok",
+  note:"Филтри: учебна година 2025-2026, месец юни 2026 (последният наличен; няма юли–септ. 2026). Допускане: „Всички категории ученици“ не е отделен таб, а заглавие на диаграма на същата страница. Месечната серия е снета отделно за всички месеци. Данни към 03.10.2026, 7:06 ч."},
+ {src:"Looker Studio — табло България", status:"ok",
+  note:"Страница Content (3 от 11), диаграма „Active Learners evolution“. Допускане: приложен е филтър Country = BG, защото таблото по подразбиране показва глобални данни. Диаграмата дава етикети през месец — съпоставката е проверена срещу KPI за последния месец. Данни към 03.10.2026, 7:12 ч."},
+ {src:"Уеб търсене", status:"ok",
+  note:"5 разширени търсения: образование и дигитализация, ОбР и Кан Академия, ПИЗА 2025, донорски организации, визия на МОН за ИИ. Датите са проверени; материали извън 32-дневния прозорец са маркирани изрично."},
+ {src:"Gmail / имейл на потребителя", status:"skip",
+  note:"Умишлено НЕ е използван, съгласно изричното указание. Нито един ред в доклада не идва от пощенската кутия."}
+];
+
+/* ============ ПОМОЩНИ ============ */
+function mailLink(subject, body){
+  const b = "(Тук напиши коментар си)\n\n\nЗа контекст, ето какво беше написал ИИ по тази тема:\n" + body;
+  return "mailto:" + MAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(b);
+}
+function cmCell(subject, body){
+  return `<a class="cm" href="${mailLink(subject, body)}">✉ Коментар</a>`;
+}
+function srcChips(list){
+  return `<span class="srcs">` + list.map(s=>{
+    const u = SRC[s];
+    const c = tagColor(s);
+    const inner = `<span class="tag" style="background:var(--${c}-s);color:var(--${c})">${s}</span>`;
+    return u ? `<a href="${u}" target="_blank" rel="noopener">${inner}</a>` : inner;
+  }).join("") + `</span>`;
+}
+
+/* ============ ИЗГЛЕДИ ============ */
+const VIEWS = [
+  {id:"overview", name:"Общо", render:renderOverview},
+  {id:"board",    name:"Отчет за УС", render:renderBoard},
+  {id:"members",  name:"Отчет за членове", render:renderMembers},
+  {id:"data",     name:"Данни", render:renderData},
+  {id:"internal", name:"Вътрешни развития", render:renderInternal},
+  {id:"news",     name:"Новини", render:renderNews},
+  {id:"mentions", name:"@Споменавания", render:renderMentions},
+  {id:"tech",     name:"Технически", render:renderTech}
+];
+
+function renderOverview(){
+  let h = `<p class="lead">Най-важното от всички изгледи. <span class="tag decision">⚑ решение на ИД</span> означава тема, която изисква решение от изпълнителния директор.</p>`;
+  h += `<div class="grid">`;
+  OVERVIEW.forEach(g=>{
+    h += `<div class="card"><h2 class="sec" style="margin-top:0">${g.cat}</h2>`;
+    g.items.forEach(it=>{
+      const body = `${it.t}\n${it.s}`;
+      h += `<div class="item">
+        <div class="t">${it.t} ${it.decision?'<span class="tag decision">⚑ решение на ИД</span>':''}</div>
+        <div class="s">${it.s}</div>
+        <div class="m">${it.tags.map(tagHTML).join("")}
+          <a class="cm" href="#" data-goto="${g.view}">↗ Към изгледа</a>
+          ${cmCell("ОбР — " + it.t, body)}
+        </div>
+      </div>`;
+    });
+    h += `</div>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function renderBoard(){
+  let h = `<p class="lead">Отчет към Управителния съвет, ${TODAY}</p><div class="grid">`;
+  BOARD.forEach(s=>{
+    const body = s.n + "\n" + s.items.map(x=>"- "+x).join("\n");
+    h += `<div class="card"><h2 class="sec" style="margin-top:0">${s.n}</h2>
+      <ul class="mini">${s.items.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div class="m" style="margin-top:10px">${cmCell("Отчет за УС — " + s.n, body)}</div></div>`;
+  });
+  return h + `</div>`;
+}
+
+function renderMembers(){
+  let h = `<p class="lead">Кратки новини за членовете на сдружението — всяка до 10–20 думи.</p><div class="grid">`;
+  MEMBERS.forEach(s=>{
+    h += `<div class="card"><h2 class="sec" style="margin-top:0">${s.h}</h2><table><thead><tr><th>Новина</th><th style="width:120px">Коментар</th></tr></thead><tbody>`;
+    s.items.forEach(x=>{
+      h += `<tr><td>${x}</td><td>${cmCell("ОбР новина — " + s.h, x)}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  });
+  return h + `</div>`;
+}
+
+/* --- графики --- */
+function barChart(data, key, color, fmt){
+  const W=760,H=240,PL=52,PR=12,PT=14,PB=42;
+  const max = Math.max(...data.map(d=>d[key]));
+  const iw = W-PL-PR, ih = H-PT-PB;
+  const bw = iw/data.length;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let i=0;i<=4;i++){
+    const y = PT+ih-ih*i/4;
+    s += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e3e6eb"/>`;
+    s += `<text x="${PL-8}" y="${y+4}" font-size="10" fill="#5f6368" text-anchor="end">${fmt(max*i/4)}</text>`;
+  }
+  data.forEach((d,i)=>{
+    const hgt = ih*d[key]/max;
+    const x = PL+i*bw+bw*0.16, w = bw*0.68;
+    s += `<rect x="${x.toFixed(1)}" y="${(PT+ih-hgt).toFixed(1)}" width="${w.toFixed(1)}" height="${hgt.toFixed(1)}" rx="3" fill="${color}"><title>${d.m}: ${fmt(d[key])}</title></rect>`;
+    const show = data.length<=14 || i%2===0;
+    if(show) s += `<text x="${(PL+i*bw+bw/2).toFixed(1)}" y="${H-24}" font-size="9.5" fill="#5f6368" text-anchor="end" transform="rotate(-45 ${(PL+i*bw+bw/2).toFixed(1)} ${H-24})">${d.m}</text>`;
+  });
+  return s + `</svg>`;
+}
+function lineChart(data, keys, colors, fmt){
+  const W=760,H=250,PL=42,PR=12,PT=14,PB=42;
+  const max = Math.max(...data.flatMap(d=>keys.map(k=>d[k])));
+  const iw=W-PL-PR, ih=H-PT-PB;
+  const X=i=>PL+iw*i/(data.length-1), Y=v=>PT+ih-ih*v/max;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let i=0;i<=4;i++){
+    const y=PT+ih-ih*i/4;
+    s += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e3e6eb"/>`;
+    s += `<text x="${PL-6}" y="${y+4}" font-size="10" fill="#5f6368" text-anchor="end">${fmt(max*i/4)}</text>`;
+  }
+  keys.forEach((k,ki)=>{
+    const pts = data.map((d,i)=>`${X(i).toFixed(1)},${Y(d[k]).toFixed(1)}`).join(" ");
+    s += `<polyline points="${pts}" fill="none" stroke="${colors[ki]}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    data.forEach((d,i)=>{ s += `<circle cx="${X(i).toFixed(1)}" cy="${Y(d[k]).toFixed(1)}" r="3.2" fill="${colors[ki]}"><title>${d.m}: ${fmt(d[k])}</title></circle>`; });
+  });
+  data.forEach((d,i)=>{ s += `<text x="${X(i).toFixed(1)}" y="${H-22}" font-size="9.5" fill="#5f6368" text-anchor="end" transform="rotate(-45 ${X(i).toFixed(1)} ${H-22})">${d.m}</text>`; });
+  return s + `</svg>`;
+}
+const num = v => Math.round(v).toLocaleString("bg-BG");
+
+function renderData(){
+  let h = `<p class="lead">Данни към 3 октомври 2026 г., снети директно от таблата в Looker Studio.</p>`;
+  h += `<div class="kpis">
+    <div class="kpi"><div class="v">29</div><div class="l">училища в програмата</div><div class="d up">+13 нови за годината</div></div>
+    <div class="kpi"><div class="v">4 912</div><div class="l">ученици, 2025/26</div><div class="d">в 28 училища</div></div>
+    <div class="kpi"><div class="v">53%</div><div class="l">повишили 30+ умения</div><div class="d up">от 1% през септември</div></div>
+    <div class="kpi"><div class="v">11 418</div><div class="l">активни учащи в БГ, сеп. 26</div><div class="d down">−47,2% за година</div></div>
+    <div class="kpi"><div class="v">290 246</div><div class="l">минути учене в БГ, сеп. 26</div><div class="d down">−25,8% за година</div></div>
+  </div>`;
+
+  h += `<div class="card"><h2 class="sec" style="margin-top:0">Ползване на Кан в нашите училища <span class="tag" style="background:var(--blue-s);color:var(--blue)">2025/26</span></h2>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Натрупани умения средно на ученик от началото на учебната година. Юни 2026 е последният наличен месец.</div>
+    ${lineChart(D_SCHOOLS_MONTHLY, ["pod","usv"], ["#1a73e8","#1e8e3e"], v=>num(v))}
+    <div class="legend"><span><i style="background:#1a73e8"></i>Подобрени умения</span><span><i style="background:#1e8e3e"></i>Усвоени умения</span></div>
+    <div class="m" style="margin-top:10px">
+      <a class="cm" href="${SRC["Табло училища"]}" target="_blank">↗ Таблото</a>
+      ${cmCell("Данни — ползване на Кан в нашите училища","Юни 2026: 24 училища, 2 608 ученици, средно 23 мин./ученик/месец; 60 подобрени и 47 усвоени умения натрупано; 53% от учениците с 30+ повишени умения, 45% с 30+ усвоени.")}
+    </div></div>`;
+
+  h += `<div class="card"><h2 class="sec" style="margin-top:0">Ползване на Кан в България <span class="tag" style="background:var(--purple-s);color:var(--purple)">месечно активни учащи</span></h2>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Септември 2024 – септември 2026. Септември 2026: 11 418 активни учащи срещу 21 608 година по-рано.</div>
+    ${barChart(D_BG_MALS, "v", "#9334e6", v=>num(v))}
+    <div class="m" style="margin-top:10px">
+      <a class="cm" href="${SRC["Табло България"]}" target="_blank">↗ Таблото</a>
+      ${cmCell("Данни — ползване на Кан в България","Септември 2026: 11 418 месечно активни учащи (−47,2% за година), 745 силно активни (−27,5%), 290 246 минути учене (−25,8%). Сезонният минимум е юли–август; есенното възстановяване тази година е по-слабо.")}
+    </div></div>`;
+
+  h += `<div class="grid">`;
+  [["Преводи на сайта","Засега няма източник на данни за този показател."],
+   ["Преводи на видеа","Засега няма източник на данни за този показател."],
+   ["Грешки в Кан","Засега няма източник на данни. Умението за откриване на грешки в субтитрите се подобрява (ММ:СС на грешката)."],
+   ["Приходи и разходи по месец","Засега няма свързан източник на финансови данни."]].forEach(([t,s])=>{
+    h += `<div class="card"><h2 class="sec" style="margin-top:0">${t}</h2><div class="empty">${s}</div>
+      <div class="m">${cmCell("Данни — " + t, s)}</div></div>`;
+   });
+  h += `</div>`;
+  return h;
+}
+
+function renderInternal(){
+  const cats = [...new Set(INTERNAL.map(r=>r.cat))];
+  const srcs = [...new Set(INTERNAL.flatMap(r=>r.srcs))];
+  let h = `<p class="lead">Комбинация от работните срещи и Slack. Задръжте мишката върху темата за пояснение.</p>`;
+  h += `<div class="note"><b>Непълен обхват:</b> Miro бордът върна „Board access denied“, а Monday конектор няма в тази сесия — задачите от тези два източника липсват. Подробности в изглед „Технически“.</div>`;
+  h += `<div class="toolbar">
+    <input id="f-int-q" placeholder="Търсене…">
+    <select id="f-int-cat"><option value="">Всички категории</option>${cats.map(c=>`<option>${c}</option>`).join("")}</select>
+    <select id="f-int-src"><option value="">Всички източници</option>${srcs.map(c=>`<option>${c}</option>`).join("")}</select>
+    <select id="f-int-dec"><option value="">Всички теми</option><option value="1">Само изискващи решение</option></select>
+    <span class="count" id="c-int"></span>
+  </div>`;
+  h += `<div class="tblwrap"><table><thead><tr>
+    <th style="min-width:190px">Тема</th><th>Собственик</th><th style="min-width:200px">Заключения</th>
+    <th style="min-width:200px">Следва</th><th>Категория</th><th style="min-width:160px">Източници</th><th>Коментар</th>
+  </tr></thead><tbody id="tb-int"></tbody></table></div>`;
+  return h;
+}
+function fillInternal(){
+  const q = (document.getElementById("f-int-q").value||"").toLowerCase();
+  const cat = document.getElementById("f-int-cat").value;
+  const src = document.getElementById("f-int-src").value;
+  const dec = document.getElementById("f-int-dec").value;
+  const rows = INTERNAL.filter(r=>{
+    if(cat && r.cat!==cat) return false;
+    if(src && !r.srcs.includes(src)) return false;
+    if(dec && !r.decision) return false;
+    if(q && !(r.tema+r.tip+r.owner+r.concl.join(" ")+r.next.join(" ")).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("c-int").textContent = rows.length + " от " + INTERNAL.length + " теми";
+  document.getElementById("tb-int").innerHTML = rows.length ? rows.map(r=>{
+    const body = `${r.tema} (${r.date})\nОбяснение: ${r.tip}\nСобственик: ${r.owner}\nЗаключения: ${r.concl.join("; ")}\nСледва: ${r.next.join("; ")}\nКатегория: ${r.cat}\nИзточници: ${r.srcs.join(", ")}`;
+    return `<tr>
+      <td><a href="${r.url}" target="_blank" rel="noopener"><span class="tip">${r.tema}<span class="bubble">${r.tip}</span></span></a>
+        ${r.decision?'<div style="margin-top:4px"><span class="tag decision">⚑ решение на ИД</span></div>':''}
+        <div style="color:var(--muted);font-size:11.5px;margin-top:3px">${r.date}</div></td>
+      <td>${r.owner}</td>
+      <td><ul class="mini">${r.concl.map(x=>`<li>${x}</li>`).join("")}</ul></td>
+      <td><ul class="mini">${r.next.map(x=>`<li>${x}</li>`).join("")}</ul></td>
+      <td>${tagHTML(r.cat)}</td>
+      <td>${srcChips(r.srcs)}</td>
+      <td>${cmCell("ОбР — " + r.tema, body)}</td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="7" class="empty">Няма съвпадения</td></tr>`;
+}
+
+function renderNews(){
+  const srcs = [...new Set(NEWS.map(r=>r.src))];
+  const tags = [...new Set(NEWS.flatMap(r=>r.tags))];
+  let h = `<p class="lead">Новини за училищното образование в България. Датата на всяка публикация е проверена.</p>`;
+  h += `<div class="toolbar">
+    <input id="f-nw-q" placeholder="Търсене…">
+    <select id="f-nw-src"><option value="">Всички източници</option>${srcs.map(c=>`<option>${c}</option>`).join("")}</select>
+    <select id="f-nw-tag"><option value="">Всички теми</option>${tags.map(c=>`<option>${c}</option>`).join("")}</select>
+    <span class="count" id="c-nw"></span>
+  </div>`;
+  h += `<div class="tblwrap"><table><thead><tr>
+    <th style="min-width:240px">Заглавие</th><th>Дата</th><th>Източник</th><th style="min-width:260px">Защо е важно</th><th>Теми</th><th>Коментар</th>
+  </tr></thead><tbody id="tb-nw"></tbody></table></div>`;
+  return h;
+}
+function fillNews(){
+  const q=(document.getElementById("f-nw-q").value||"").toLowerCase();
+  const src=document.getElementById("f-nw-src").value;
+  const tag=document.getElementById("f-nw-tag").value;
+  const rows = NEWS.filter(r=>{
+    if(src && r.src!==src) return false;
+    if(tag && !r.tags.includes(tag)) return false;
+    if(q && !(r.t+r.why).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("c-nw").textContent = rows.length + " от " + NEWS.length + " новини";
+  document.getElementById("tb-nw").innerHTML = rows.length ? rows.map(r=>{
+    const body = `${r.t}\n${r.url}\nДата: ${r.date} · Източник: ${r.src}\nЗащо е важно: ${r.why}`;
+    return `<tr>
+      <td><a href="${r.url}" target="_blank" rel="noopener">${r.t}</a></td>
+      <td style="white-space:nowrap">${r.date}</td>
+      <td>${tagHTML(r.src)}</td>
+      <td>${r.why}</td>
+      <td>${r.tags.map(tagHTML).join(" ")}</td>
+      <td>${cmCell("ОбР новина — " + r.t, body)}</td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="6" class="empty">Няма съвпадения</td></tr>`;
+}
+
+function renderMentions(){
+  const srcs=[...new Set(MENTIONS.map(r=>r.src))];
+  let h = `<p class="lead">Места от последните 31 дни, където сте споменат по име: Даниел Чолаков, Даниел, Чолаков, ДЧ, Дани.</p>`;
+  h += `<div class="toolbar">
+    <input id="f-mn-q" placeholder="Търсене…">
+    <select id="f-mn-src"><option value="">Всички източници</option>${srcs.map(c=>`<option>${c}</option>`).join("")}</select>
+    <span class="count" id="c-mn"></span>
+  </div>`;
+  h += `<div class="tblwrap"><table><thead><tr>
+    <th style="min-width:230px">Къде</th><th style="min-width:360px">Какво пише</th><th>Източник</th><th>Коментар</th>
+  </tr></thead><tbody id="tb-mn"></tbody></table></div>`;
+  return h;
+}
+function fillMentions(){
+  const q=(document.getElementById("f-mn-q").value||"").toLowerCase();
+  const src=document.getElementById("f-mn-src").value;
+  const rows = MENTIONS.filter(r=>{
+    if(src && r.src!==src) return false;
+    if(q && !(r.where+r.txt).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("c-mn").textContent = rows.length + " от " + MENTIONS.length + " споменавания";
+  document.getElementById("tb-mn").innerHTML = rows.length ? rows.map(r=>{
+    const body = `${r.where}\n${r.url}\n${r.txt}`;
+    return `<tr><td><a href="${r.url}" target="_blank" rel="noopener">${r.where}</a></td>
+      <td>${r.txt}</td><td>${tagHTML(r.src)}</td>
+      <td>${cmCell("Споменаване — " + r.where, body)}</td></tr>`;
+  }).join("") : `<tr><td colspan="4" class="empty">Няма съвпадения</td></tr>`;
+}
+
+function renderTech(){
+  const badge = {ok:["green","Успешно"],warn:["yellow","Частично"],fail:["red","Неуспешно"],skip:["indigo","Умишлено пропуснато"]};
+  let h = `<p class="lead">Как е направен този доклад и какво е станало с всеки източник.</p>`;
+  h += `<div class="card"><h2 class="sec" style="margin-top:0">Модел и ресурс</h2>
+    <table><tbody>
+      <tr><td style="width:220px;color:var(--muted)">Модел</td><td>Claude Opus 5 (claude-opus-5)</td></tr>
+      <tr><td style="color:var(--muted)">Подагенти</td><td>3 · Opus 5 — извличане от Google Doc, четене на Miro, снемане на таблата</td></tr>
+      <tr><td style="color:var(--muted)">Изразходвани жетони</td><td>≈ 302 000 в подагентите (98 831 + 46 972 + 156 404) + ≈ 95 000 в основната сесия ≈ <b>397 000 жетона</b></td></tr>
+      <tr><td style="color:var(--muted)">Извиквания на инструменти</td><td>83 в подагентите + 19 в основната сесия = <b>102</b></td></tr>
+      <tr><td style="color:var(--muted)">Време на изпълнение</td><td>≈ 13 минути (подагенти: 1,5 + 0,7 + 10,4 мин.)</td></tr>
+      <tr><td style="color:var(--muted)">Стартирано от</td><td>Планирана задача obr-weekly-updates-report, ${TODAY}</td></tr>
+    </tbody></table></div>`;
+  h += `<div class="tblwrap"><table><thead><tr><th style="min-width:230px">Източник</th><th>Резултат</th><th style="min-width:420px">Бележки, затруднения и допускания</th><th>Коментар</th></tr></thead><tbody>`;
+  TECH_SOURCES.forEach(r=>{
+    const [c,lbl] = badge[r.status];
+    h += `<tr><td><b>${r.src}</b></td>
+      <td><span class="tag" style="background:var(--${c}-s);color:var(--${c})">${lbl}</span></td>
+      <td>${r.note}</td>
+      <td>${cmCell("Технически — " + r.src, r.src + "\n" + lbl + "\n" + r.note)}</td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+  h += `<div class="ok" style="margin-top:14px"><b>Проверка:</b> пощенската кутия на потребителя не е отваряна и нищо в доклада не произхожда от нея. Темите са де-дублирани между източниците: ПИЗА, работата с училища, съдържанието и ИИ се появяват веднъж, с линкове към всички източници, в които са повдигнати.</div>`;
+  return h;
+}
+
+/* ============ РУТЕР ============ */
+const nav = document.getElementById("nav"), main = document.getElementById("main");
+VIEWS.forEach((v,i)=>{
+  const b=document.createElement("button"); b.textContent=v.name; b.dataset.id=v.id;
+  b.onclick=()=>go(v.id); nav.appendChild(b);
+  const d=document.createElement("div"); d.className="view"; d.id="v-"+v.id; main.appendChild(d);
+});
+function go(id){
+  VIEWS.forEach(v=>{
+    document.getElementById("v-"+v.id).classList.toggle("active", v.id===id);
+  });
+  [...nav.children].forEach(b=>b.classList.toggle("active", b.dataset.id===id));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+VIEWS.forEach(v=>{ document.getElementById("v-"+v.id).innerHTML = v.render(); });
+
+/* слушатели за филтрите */
+["f-int-q","f-int-cat","f-int-src","f-int-dec"].forEach(id=>{
+  const e=document.getElementById(id); e.addEventListener("input",fillInternal); e.addEventListener("change",fillInternal);
+});
+["f-nw-q","f-nw-src","f-nw-tag"].forEach(id=>{
+  const e=document.getElementById(id); e.addEventListener("input",fillNews); e.addEventListener("change",fillNews);
+});
+["f-mn-q","f-mn-src"].forEach(id=>{
+  const e=document.getElementById(id); e.addEventListener("input",fillMentions); e.addEventListener("change",fillMentions);
+});
+fillInternal(); fillNews(); fillMentions();
+
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-goto]");
+  if(a){ e.preventDefault(); go(a.dataset.goto==="ус"?"board":a.dataset.goto); }
+});
+go("overview");
+</script>
+</body>
+</html>
